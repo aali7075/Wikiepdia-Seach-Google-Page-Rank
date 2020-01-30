@@ -3,7 +3,7 @@ Uses Google's original page rank algorithm using wikiepdia links to determine wh
 As everyone who uses wikipedia knows, wikipedia pages have links to other wikipedia articles that are relevant to the topic. The purpose of 
 this code is to find out page links is the most relevant. 
 
-This is done in three steps. 
+## This is done in three steps. 
 
 ## The first step is to create a web based on the pages linked.
 Here is an example of the wikipedia page "Linear algebra" with a webspace of 4 page links.

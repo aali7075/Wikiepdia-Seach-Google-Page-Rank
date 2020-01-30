@@ -32,7 +32,7 @@ def PageLinks(page_name):
 """
 Store values will take the chosen page and find the amount of Links
 Input parameters:
-link_num is a int represents that amount of shared links to look at. 
+link_num is a int represents that amount of shared links to look at.
 For example the page Linear Algebra might have 400 page links but we only want to look at the first 200. So, link_num=200
 
 page_name a string that is the page you are intrested in.
@@ -51,7 +51,7 @@ The two pages could of links like matrix, Gram-Schdmit, QR factorization in comm
 4. Store the location of the shared links in the locations array relative to the orginal page.
 Example: The page link "matrix" could be the 7th page link on the Linear Algebra so we need to store that position in the location array
 5. Append the to the value array a tuple with 3 fields (shared_links,fos_links[pos], fos_link[i])
-    Shared_links represents the total number of shared_links 
+    Shared_links represents the total number of shared_links
     fos_link[pos] represents the specific shared link between the orginal page and shared link page
     fos_link[i] represents the the shared link page
     Example: The Linear Algebra Page and Eigen Vector page appen array would look like this:
@@ -67,10 +67,10 @@ def StoreValues(link_num,page_name,file_name):
 
     for i in range(link_size):
         shared_link_page=shared_links[i]
-        try: 
+        try:
             wl= wk.page(shared_link_page).links
         except wk.exceptions.DisambiguationError as e: #If unable to find wikipedia page throw out the data and go to next page
-            continue 
+            continue
         web_links=wl[0:link_num]
         link_dict= {link:0 for link in web_links if link!= shared_link_page} # Create a dictionary for the link to the fossil and exclude links that includes itself
 
@@ -104,7 +104,7 @@ file_name a string the name of the text file with values  stored in it from Stor
 Function description:
 
 
-    1.  Checks to make sure the shared links is inside the web of shared links (i.e shared_links[i]) 
+    1.  Checks to make sure the shared links is inside the web of shared links (i.e shared_links[i])
     meaning if any of the shared links in the orignal shared links web did not connect ot any other links we toss them out.
     Ex: In page Linear algebra. Eigen vector and Linear Algebra Link might both link to fossils but fossil might have 0 shared links.
     We then throw out fossils and we do not include it in our  Probability Transistion Matrix
@@ -114,16 +114,16 @@ Function description:
 
 """
 def CreateMatrix(file_name):
-    with open(file_name, 'rb') as fp: #Unpickle the values data 
+    with open(file_name, 'rb') as fp: #Unpickle the values data
         values=pickle.load(fp)
-    web_links=[1] #intialize to seperate arrays and check to make sure they have the proper 
+    web_links=[1] #intialize to seperate arrays and check to make sure they have the proper
     web_links_cleaned=[]
     actual_values=values
     while len(web_links)-len(web_links_cleaned)!=0: #Ensure that each shared links is is connect to the web of shared links
-        print("iterating!", len(web_links), len(web_links_cleaned))
+        #print("iterating!", len(web_links), len(web_links_cleaned))
         web_links= [link for val,check,link in actual_values]
         tmp= actual_values
-        actual_values=[] 
+        actual_values=[]
 
         for val,check,link in tmp:
             if check in web_links: #Only append if shared link is in shared page web
@@ -165,7 +165,7 @@ amt is an int that represents the amount of matrix multiplication iterations
 mat is the eigen matrix
 num_links is the amount of page_links is the web
 
-Continue to multiply the Probability Transistion matrix by itself 
+Continue to multiply the Probability Transistion matrix by itself
 The comlumn wise columns will stablize and then we divide the number by 1/num_links
 
 returns the importance/singular values ordered and not ordered
@@ -182,7 +182,7 @@ def PMCT(amt, mat, num_links):
     sing=np.sum(mat, axis=1)*z # Sum row wise Divide by z value to get the importance
     sort_sing=np.sort(sing)[::-1] #Want the ordering to be greatest to smallest
     end=timer()
-    print('The time ellasped in PMCT is', end-start)
+    print('The time ellasped in PMCT is '+ str(end-start)+' seconds')
     return sing, sort_sing
 
 """
@@ -191,7 +191,7 @@ Input paramater:
 eigen_mat is the Probability Transition Matrix
 
 Finds the eigen vector assoicated the the eigen value of one
-Takes the eigen vector and divides each value by the sum 
+Takes the eigen vector and divides each value by the sum
 
 returns the importance/singular values ordered and not ordered
 
@@ -199,7 +199,7 @@ returns the importance/singular values ordered and not ordered
 def GuassElim(eigen_mat):
     start=timer()
     np.fill_diagonal(eigen_mat, -1.0)
-    
+
     sing= LA.null_space(eigen_mat)
 
     sing=[val[0] for val in sing] #Currently a each singular value is a it's own list so we need to change
@@ -207,10 +207,10 @@ def GuassElim(eigen_mat):
 
     sing_sum=sum(sing)
     sing=sing/sing_sum
-    
+
     sort_sing=np.sort(sing)[::-1] #Change the order for ascending to descending
     end=timer()
-    print('The time ellasped in Guassian Elimination is ', end-start)
+    print('The time ellasped in Guassian Elimination is '+ str(end-start)+' seconds')
     return sing, sort_sing
 
 
@@ -220,7 +220,7 @@ BFPT (Banach Fixed Point Theorem) The fastest method
 Input paramater:
 amt an int that is an iterator
 eigen_mat is the Probability Transition Matrix
-B  a dampening factor that also accounts for random sinks 
+B  a dampening factor that also accounts for random sinks
 
 
 Finds the singular values with by first created a vector pf 1/(num of web page links)
@@ -237,18 +237,18 @@ def BFPT(amt, eigen_mat, B):
         sing=((1-B)*np.dot(eigen_mat,sing)+ B*X_0)
     sort_sing=np.sort(sing)[::-1] #Change the order for ascending to descending
     end=timer()
-    print('The time ellasped in method BFPT is ', end-start)
+    print('The time ellasped in method BFPT is '+ str(end-start)+ ' seconds')
     return sing, sort_sing
 
 
 
 def print_results(sing,sort_sing,links):
+    print("The 7 most relevant links are:")
     for i in range(8):
         pos=np.where(sing==sort_sing[i])[0][0]
-        print(links[pos])
+        print(str(i)+": "+ str(links[pos]))
     pos_last= np.where(sing==sort_sing[-1])[0][0]
-    print(sort_sing[-1])
-    print("Least relevant is ", links[pos_last])
+    print("Least relevant is "+ str(links[pos_last]))
 
 
 
